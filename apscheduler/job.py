@@ -27,6 +27,7 @@ class Job(object):
     :var int max_instances: the maximum number of concurrently executing instances allowed for this
         job
     :var datetime.datetime next_run_time: the next scheduled run time of this job
+    :param bool include_run_time: whether to pass the job scheduled run time (datetime) as a keyworded argument to the ``func`` callable
 
     .. note::
         The ``misfire_grace_time`` has some non-obvious effects on job execution. See the
@@ -35,7 +36,7 @@ class Job(object):
 
     __slots__ = ('_scheduler', '_jobstore_alias', 'id', 'trigger', 'executor', 'func', 'func_ref',
                  'args', 'kwargs', 'name', 'misfire_grace_time', 'coalesce', 'max_instances',
-                 'next_run_time')
+                 'next_run_time', 'include_run_time')
 
     def __init__(self, scheduler, id=None, **kwargs):
         super(Job, self).__init__()
@@ -219,6 +220,10 @@ class Job(object):
             value = changes.pop('next_run_time')
             approved['next_run_time'] = convert_to_datetime(value, self._scheduler.timezone,
                                                             'next_run_time')
+        if 'include_run_time' in changes:
+            value = changes.pop('include_run_time')
+            approved['include_run_time'] = value
+
 
         if changes:
             raise AttributeError('The following are not modifiable attributes of Job: %s' %
@@ -247,7 +252,8 @@ class Job(object):
             'misfire_grace_time': self.misfire_grace_time,
             'coalesce': self.coalesce,
             'max_instances': self.max_instances,
-            'next_run_time': self.next_run_time
+            'next_run_time': self.next_run_time,
+            'include_run_time': self.include_run_time
         }
 
     def __setstate__(self, state):
@@ -267,6 +273,7 @@ class Job(object):
         self.coalesce = state['coalesce']
         self.max_instances = state['max_instances']
         self.next_run_time = state['next_run_time']
+        self.include_run_time = state['include_run_time']
 
     def __eq__(self, other):
         if isinstance(other, Job):

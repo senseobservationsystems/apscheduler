@@ -361,7 +361,7 @@ class BaseScheduler(six.with_metaclass(ABCMeta)):
     def add_job(self, func, trigger=None, args=None, kwargs=None, id=None, name=None,
                 misfire_grace_time=undefined, coalesce=undefined, max_instances=undefined,
                 next_run_time=undefined, jobstore='default', executor='default',
-                replace_existing=False, **trigger_args):
+                replace_existing=False, include_run_time=False, **trigger_args):
         """
         add_job(func, trigger=None, args=None, kwargs=None, id=None, \
             name=None, misfire_grace_time=undefined, coalesce=undefined, \
@@ -404,6 +404,7 @@ class BaseScheduler(six.with_metaclass(ABCMeta)):
         :param str|unicode executor: alias of the executor to run the job with
         :param bool replace_existing: ``True`` to replace an existing job with the same ``id``
             (but retain the number of runs from the existing one)
+        :param bool include_run_time: ``True`` to pass the job scheduled run time (datetime) as a keyworded argument when ``func`` is called
         :rtype: Job
 
         """
@@ -418,7 +419,8 @@ class BaseScheduler(six.with_metaclass(ABCMeta)):
             'misfire_grace_time': misfire_grace_time,
             'coalesce': coalesce,
             'max_instances': max_instances,
-            'next_run_time': next_run_time
+            'next_run_time': next_run_time,
+            'include_run_time': include_run_time
         }
         job_kwargs = dict((key, value) for key, value in six.iteritems(job_kwargs) if
                           value is not undefined)

@@ -122,7 +122,13 @@ def run_job(job, jobstore_alias, run_times, logger_name):
 
         logger.info('Running job "%s" (scheduled at %s)', job, run_time)
         try:
-            retval = job.func(*job.args, **job.kwargs)
+            if job.include_run_time:
+                job_kwargs = job.kwargs
+                job_kwargs["run_time"] = run_time
+            else:
+                job_kwargs = job.kwargs
+
+            retval = job.func(*job.args, **job_kwargs)
         except:
             exc, tb = sys.exc_info()[1:]
             formatted_tb = ''.join(format_tb(tb))
